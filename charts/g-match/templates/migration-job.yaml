@@ -1,0 +1,67 @@
+{{- if .Values.migration.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-migrate-{{ .Release.Revision }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "g-match.labels" . | nindent 4 }}
+    component: migration
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation
+spec:
+  backoffLimit: {{ .Values.migration.backoffLimit }}
+  activeDeadlineSeconds: {{ .Values.migration.activeDeadlineSeconds }}
+  ttlSecondsAfterFinished: {{ .Values.migration.ttlSecondsAfterFinished }}
+  template:
+    metadata:
+      labels:
+        app: g-match
+        component: migration
+    spec:
+      {{- include "g-match.nodeAffinity" . | nindent 6 }}
+      {{- include "g-match.imagePullSecrets" . | nindent 6 }}
+      restartPolicy: Never
+
+      initContainers:
+      - name: wait-for-mysql
+        image: {{ .Values.initContainers.busybox.image }}:{{ .Values.initContainers.busybox.tag }}
+        command:
+        - sh
+        - -c
+        - |
+          echo "Waiting for MySQL at {{ .Values.mysql.serviceName }}:{{ .Values.mysql.port }}..."
+          until nc -z {{ .Values.mysql.serviceName }} {{ .Values.mysql.port }}; do
+            echo "MySQL not ready, retrying in 3s..."
+            sleep 3
+          done
+          echo "MySQL is ready!"
+        resources:
+          {{- toYaml .Values.initContainers.busybox.resources | nindent 10 }}
+
+      containers:
+      - name: migrate
+        image: {{ include "g-match.django.image" . }}
+        imagePullPolicy: {{ .Values.image.django.pullPolicy }}
+        command:
+        - sh
+        - -c
+        - |
+          echo "=== G-Match Migration Job ==="
+          echo "DB_HOST=$DB_HOST"
+          echo "DB_PORT=$DB_PORT"
+          echo "DB_NAME=$DB_NAME"
+          echo "DB_USER=$DB_USER"
+          echo "Attempting migration..."
+          python manage.py migrate --noinput
+          echo "=== Migration Complete ==="
+        envFrom:
+        - configMapRef:
+            name: g-match-config
+        - secretRef:
+            name: g-match-secret
+        resources:
+          {{- toYaml .Values.migration.resources | nindent 10 }}
+{{- end }}

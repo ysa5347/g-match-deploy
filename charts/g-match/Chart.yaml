@@ -1,0 +1,12 @@
+apiVersion: v2
+name: g-match
+description: G-Match - GIST dormitory roommate matching platform
+type: application
+version: 0.1.0
+appVersion: "latest"
+keywords:
+  - django
+  - matching
+  - gist
+maintainers:
+  - name: ysa5347

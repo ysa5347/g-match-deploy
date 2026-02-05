@@ -38,7 +38,7 @@ spec:
         - sh
         - -c
         - |
-          until nc -z g-match-mysql 3306; do
+          until nc -z mysql 3306; do
             echo "Waiting for MySQL..."
             sleep 2
           done

@@ -9,7 +9,7 @@ data:
 
   DB_NAME: "g-match"
   DB_USER: "django-server"
-  DB_HOST: "mysqldb.g-match.svc.cluster.local"
+  DB_HOST: "mysql.g-match.svc.cluster.local"
   DB_PORT: "3306"
 
   REDIS_HOST: "redis.g-match.svc.cluster.local"
@@ -34,7 +34,7 @@ data:
   REDIS_HOST: "redis.g-match.svc.cluster.local"
   REDIS_PORT: "6379"
   REDIS_DB: "0"
-  DB_HOST: "mysqldb.g-match.svc.cluster.local"
+  DB_HOST: "mysql.g-match.svc.cluster.local"
   DB_PORT: "3306"
   DB_NAME: "g-match"
   DB_USER: "django-server"

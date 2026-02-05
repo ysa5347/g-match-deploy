@@ -1,0 +1,195 @@
+# =============================================================================
+# G-Match Helm Chart Values
+# =============================================================================
+
+# -- Global settings
+global:
+  # -- Exclude control-plane nodes (for RPi cluster)
+  excludeControlPlane: true
+
+# -- Image registry and pull secrets
+image:
+  registry: ghcr.io/ysa5347
+  django:
+    repository: g-match-backend
+    tag: latest
+    pullPolicy: IfNotPresent
+  matcher:
+    repository: g-match-backend-matcher
+    tag: latest
+    pullPolicy: IfNotPresent
+  pullSecrets:
+    - name: ghcr-secret
+
+# -- Django Web Application
+django:
+  replicas: 1
+  port: 8000
+  resources:
+    requests:
+      memory: "192Mi"
+      cpu: "150m"
+    limits:
+      memory: "384Mi"
+      cpu: "500m"
+  collectstatic:
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "100m"
+      limits:
+        memory: "256Mi"
+        cpu: "300m"
+  livenessProbe:
+    path: /api/v1alpha1/account/
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+  readinessProbe:
+    path: /api/v1alpha1/account/
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+  hpa:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 6
+    targetCPUUtilization: 80
+    targetMemoryUtilization: 80
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      maxPods: 1
+      periodSeconds: 60
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      maxPods: 1
+      periodSeconds: 120
+
+# -- Traefik IngressRoute
+ingress:
+  enabled: true
+  host: api.g-match.org
+  entryPoints:
+    - web
+
+# -- Matcher services
+matcher:
+  edgeCalculator:
+    replicas: 1
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "50m"
+      limits:
+        memory: "128Mi"
+        cpu: "150m"
+  scheduler:
+    replicas: 1
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "50m"
+      limits:
+        memory: "128Mi"
+        cpu: "150m"
+
+# -- MySQL
+mysql:
+  enabled: true
+  image:
+    repository: mysql
+    tag: "8.0"
+  serviceName: mysql
+  port: 3306
+  storage:
+    size: 10Gi
+    storageClassName: local-path
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "250m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+# -- Redis
+redis:
+  enabled: true
+  image:
+    repository: redis
+    tag: "7.2-alpine"
+  serviceName: redis
+  port: 6379
+  storage:
+    size: 1Gi
+    storageClassName: local-path
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "200m"
+
+# -- Migration Job (Helm hook)
+migration:
+  enabled: true
+  backoffLimit: 5
+  activeDeadlineSeconds: 600
+  ttlSecondsAfterFinished: 3600
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "200m"
+
+# -- Application Configuration (ConfigMap values)
+config:
+  debug: "False"
+  allowedHosts: "api.g-match.org,www.g-match.org,localhost"
+  db:
+    name: "g-match"
+    user: "django-server"
+    port: "3306"
+  redis:
+    port: "6379"
+    db: "0"
+  frontend:
+    url: "http://www.g-match.org"
+    authCallbackUrl: "http://www.g-match.org/auth/callback"
+  gistOidc:
+    clientId: "26dbdb53-b19e-4241-9187-f4c24e6173e2"
+    redirectUri: "http://api.g-match.org/api/v1alpha1/account/auth/oidc/callback"
+    postLogoutRedirectUri: "http://api.g-match.org/api/v1alpha1/account/auth/oidc/callback"
+  matcher:
+    edgePollingInterval: "10"
+    schedulerInterval: "120"
+    matchThreshold: "80.0"
+    lockExpire: "120"
+
+# -- Secrets (provide real values via -f secrets.yaml or --set)
+secrets:
+  secretKey: ""
+  dbPassword: ""
+  dbRootPassword: ""
+  redisPassword: ""
+  gistOidcClientSecret: ""
+  # Base64-encoded .dockerconfigjson for GHCR access
+  dockerconfigjson: ""
+
+# -- Init container images
+initContainers:
+  busybox:
+    image: busybox
+    tag: "1.35"
+    resources:
+      requests:
+        memory: "16Mi"
+        cpu: "10m"
+      limits:
+        memory: "32Mi"
+        cpu: "50m"

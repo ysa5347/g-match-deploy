@@ -18,7 +18,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: g-match-redis
+  name: redis
   namespace: g-match
   labels:
     app: redis
@@ -49,10 +49,18 @@ spec:
         ports:
         - containerPort: 6379
           name: redis
+        env:
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: g-match-redis-secret
+              key: REDIS_PASSWORD
         command:
         - redis-server
         - --appendonly
         - "yes"
+        - --requirepass
+        - $(REDIS_PASSWORD)
         volumeMounts:
         - name: redis-storage
           mountPath: /data
@@ -60,6 +68,8 @@ spec:
           exec:
             command:
             - redis-cli
+            - -a
+            - $(REDIS_PASSWORD)
             - ping
           initialDelaySeconds: 30
           periodSeconds: 10
@@ -68,6 +78,8 @@ spec:
           exec:
             command:
             - redis-cli
+            - -a
+            - $(REDIS_PASSWORD)
             - ping
           initialDelaySeconds: 5
           periodSeconds: 5

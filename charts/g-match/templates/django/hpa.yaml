@@ -1,0 +1,44 @@
+{{- if .Values.django.hpa.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: g-match-web-hpa
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "g-match.labels" . | nindent 4 }}
+    app: g-match
+    component: web
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: g-match-web
+  minReplicas: {{ .Values.django.hpa.minReplicas }}
+  maxReplicas: {{ .Values.django.hpa.maxReplicas }}
+  metrics:
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: {{ .Values.django.hpa.targetMemoryUtilization }}
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: {{ .Values.django.hpa.targetCPUUtilization }}
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: {{ .Values.django.hpa.scaleUp.stabilizationWindowSeconds }}
+      policies:
+      - type: Pods
+        value: {{ .Values.django.hpa.scaleUp.maxPods }}
+        periodSeconds: {{ .Values.django.hpa.scaleUp.periodSeconds }}
+    scaleDown:
+      stabilizationWindowSeconds: {{ .Values.django.hpa.scaleDown.stabilizationWindowSeconds }}
+      policies:
+      - type: Pods
+        value: {{ .Values.django.hpa.scaleDown.maxPods }}
+        periodSeconds: {{ .Values.django.hpa.scaleDown.periodSeconds }}
+{{- end }}

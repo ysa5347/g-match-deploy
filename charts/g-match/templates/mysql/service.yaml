@@ -1,0 +1,19 @@
+{{- if .Values.mysql.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.mysql.serviceName }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "g-match.labels" . | nindent 4 }}
+    app: mysql
+spec:
+  type: ClusterIP
+  ports:
+  - port: {{ .Values.mysql.port }}
+    targetPort: {{ .Values.mysql.port }}
+    protocol: TCP
+    name: mysql
+  selector:
+    app: mysql
+{{- end }}

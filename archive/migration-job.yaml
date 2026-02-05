@@ -1,12 +1,12 @@
 ---
 # Django Migration Job
 # Usage:
-#   kubectl apply -f k8s/migration-job.yaml
-#   kubectl wait --for=condition=complete job/g-match-migrate -n g-match --timeout=120s
+#   kubectl apply -f migration-job.yaml
+#   kubectl wait --for=condition=complete job/g-match-migrate -n g-match --timeout=600s
 #   kubectl logs job/g-match-migrate -n g-match
 #
 # Re-run (delete old job first):
-#   kubectl delete job g-match-migrate -n g-match --ignore-not-found && kubectl apply -f k8s/migration-job.yaml
+#   kubectl delete job g-match-migrate -n g-match --ignore-not-found && kubectl apply -f migration-job.yaml
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -16,8 +16,9 @@ metadata:
     app: g-match
     component: migration
 spec:
-  backoffLimit: 3
-  ttlSecondsAfterFinished: 300
+  backoffLimit: 5
+  activeDeadlineSeconds: 600
+  ttlSecondsAfterFinished: 3600
   template:
     metadata:
       labels:
@@ -43,20 +44,35 @@ spec:
         - sh
         - -c
         - |
-          until nc -z g-match-mysql 3306; do
-            echo "Waiting for MySQL..."
-            sleep 2
+          echo "Waiting for MySQL at mysql:3306..."
+          until nc -z mysql 3306; do
+            echo "MySQL not ready, retrying in 3s..."
+            sleep 3
           done
-          echo "MySQL is ready"
+          echo "MySQL is ready!"
+        resources:
+          requests:
+            memory: "16Mi"
+            cpu: "10m"
+          limits:
+            memory: "32Mi"
+            cpu: "50m"
 
       containers:
       - name: migrate
         image: ghcr.io/ysa5347/g-match-backend:latest
         command:
-        - python
-        - manage.py
-        - migrate
-        - --noinput
+        - sh
+        - -c
+        - |
+          echo "=== G-Match Migration Job ==="
+          echo "DB_HOST=$DB_HOST"
+          echo "DB_PORT=$DB_PORT"
+          echo "DB_NAME=$DB_NAME"
+          echo "DB_USER=$DB_USER"
+          echo "Attempting migration..."
+          python manage.py migrate --noinput
+          echo "=== Migration Complete ==="
         envFrom:
         - configMapRef:
             name: g-match-config

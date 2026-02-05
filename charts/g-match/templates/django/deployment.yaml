@@ -1,0 +1,111 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: g-match-web
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "g-match.labels" . | nindent 4 }}
+    app: g-match
+    component: web
+spec:
+  replicas: {{ .Values.django.replicas }}
+  selector:
+    matchLabels:
+      app: g-match
+      component: web
+  template:
+    metadata:
+      labels:
+        app: g-match
+        component: web
+    spec:
+      {{- include "g-match.nodeAffinity" . | nindent 6 }}
+      {{- include "g-match.imagePullSecrets" . | nindent 6 }}
+      initContainers:
+      # Wait for MySQL to be ready
+      - name: wait-for-mysql
+        image: {{ .Values.initContainers.busybox.image }}:{{ .Values.initContainers.busybox.tag }}
+        command:
+        - sh
+        - -c
+        - |
+          until nc -z {{ .Values.mysql.serviceName }} {{ .Values.mysql.port }}; do
+            echo "Waiting for MySQL..."
+            sleep 2
+          done
+          echo "MySQL is ready"
+        resources:
+          {{- toYaml .Values.initContainers.busybox.resources | nindent 10 }}
+
+      # Wait for Redis to be ready
+      - name: wait-for-redis
+        image: {{ .Values.initContainers.busybox.image }}:{{ .Values.initContainers.busybox.tag }}
+        command:
+        - sh
+        - -c
+        - |
+          until nc -z {{ .Values.redis.serviceName }} {{ .Values.redis.port }}; do
+            echo "Waiting for Redis..."
+            sleep 2
+          done
+          echo "Redis is ready"
+        resources:
+          {{- toYaml .Values.initContainers.busybox.resources | nindent 10 }}
+
+      # Collect static files
+      - name: django-collectstatic
+        image: {{ include "g-match.django.image" . }}
+        imagePullPolicy: {{ .Values.image.django.pullPolicy }}
+        command:
+        - python
+        - manage.py
+        - collectstatic
+        - --noinput
+        envFrom:
+        - configMapRef:
+            name: g-match-config
+        - secretRef:
+            name: g-match-secret
+        volumeMounts:
+        - name: static-files
+          mountPath: /app/staticfiles
+        resources:
+          {{- toYaml .Values.django.collectstatic.resources | nindent 10 }}
+
+      containers:
+      - name: django
+        image: {{ include "g-match.django.image" . }}
+        imagePullPolicy: {{ .Values.image.django.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.django.port }}
+          name: http
+        envFrom:
+        - configMapRef:
+            name: g-match-config
+        - secretRef:
+            name: g-match-secret
+        volumeMounts:
+        - name: static-files
+          mountPath: /app/staticfiles
+        livenessProbe:
+          httpGet:
+            path: {{ .Values.django.livenessProbe.path }}
+            port: {{ .Values.django.port }}
+          initialDelaySeconds: {{ .Values.django.livenessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.django.livenessProbe.periodSeconds }}
+          timeoutSeconds: {{ .Values.django.livenessProbe.timeoutSeconds }}
+          failureThreshold: {{ .Values.django.livenessProbe.failureThreshold }}
+        readinessProbe:
+          httpGet:
+            path: {{ .Values.django.readinessProbe.path }}
+            port: {{ .Values.django.port }}
+          initialDelaySeconds: {{ .Values.django.readinessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.django.readinessProbe.periodSeconds }}
+          timeoutSeconds: {{ .Values.django.readinessProbe.timeoutSeconds }}
+          failureThreshold: {{ .Values.django.readinessProbe.failureThreshold }}
+        resources:
+          {{- toYaml .Values.django.resources | nindent 10 }}
+
+      volumes:
+      - name: static-files
+        emptyDir: {}

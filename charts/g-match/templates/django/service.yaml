@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: g-match-web
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "g-match.labels" . | nindent 4 }}
+    app: g-match
+    component: web
+spec:
+  type: ClusterIP
+  ports:
+  - port: {{ .Values.django.port }}
+    targetPort: {{ .Values.django.port }}
+    protocol: TCP
+    name: http
+  selector:
+    app: g-match
+    component: web

@@ -1,0 +1,43 @@
+==========================================================
+  G-Match has been deployed!
+==========================================================
+
+Namespace: {{ .Release.Namespace }}
+
+Components:
+  - Django Web:       deployment/g-match-web
+  - Edge Calculator:  deployment/g-match-edge-calculator
+  - Scheduler:        deployment/g-match-scheduler
+{{- if .Values.mysql.enabled }}
+  - MySQL:            statefulset/{{ .Values.mysql.serviceName }}
+{{- end }}
+{{- if .Values.redis.enabled }}
+  - Redis:            deployment/{{ .Values.redis.serviceName }}
+{{- end }}
+
+Check status:
+  kubectl get pods -n {{ .Release.Namespace }}
+  kubectl get deployments -n {{ .Release.Namespace }}
+
+View logs:
+  kubectl logs -n {{ .Release.Namespace }} deployment/g-match-web
+  kubectl logs -n {{ .Release.Namespace }} deployment/g-match-edge-calculator
+
+{{- if .Values.ingress.enabled }}
+
+Ingress:
+  Host: {{ .Values.ingress.host }}
+  URL:  http://{{ .Values.ingress.host }}
+{{- end }}
+
+Migration job logs:
+  kubectl logs -n {{ .Release.Namespace }} job/{{ .Release.Name }}-migrate-{{ .Release.Revision }}
+
+Upgrade with new image tag:
+  helm upgrade {{ .Release.Name }} ./charts/g-match \
+    --set image.django.tag=<new-tag> \
+    --reuse-values --wait --timeout 600s
+
+Rollback:
+  helm rollback {{ .Release.Name }} <revision> -n {{ .Release.Namespace }}
+==========================================================

@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: g-match-edge-calculator
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "g-match.labels" . | nindent 4 }}
+    app: g-match
+    component: edge-calculator
+spec:
+  replicas: {{ .Values.matcher.edgeCalculator.replicas }}
+  selector:
+    matchLabels:
+      app: g-match
+      component: edge-calculator
+  template:
+    metadata:
+      labels:
+        app: g-match
+        component: edge-calculator
+    spec:
+      {{- include "g-match.nodeAffinity" . | nindent 6 }}
+      {{- include "g-match.imagePullSecrets" . | nindent 6 }}
+      containers:
+      - name: edge-calculator
+        image: {{ include "g-match.matcher.image" . }}
+        imagePullPolicy: {{ .Values.image.matcher.pullPolicy }}
+        env:
+        - name: SCRIPT_NAME
+          value: "edge_calculator.py"
+        - name: REDIS_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: g-match-matcher-config
+              key: REDIS_HOST
+        - name: REDIS_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: g-match-matcher-config
+              key: REDIS_PORT
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: g-match-secret
+              key: REDIS_PASSWORD
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: g-match-matcher-config
+              key: DB_HOST
+        - name: DB_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: g-match-matcher-config
+              key: DB_PORT
+        - name: DB_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: g-match-matcher-config
+              key: DB_NAME
+        - name: DB_USER
+          valueFrom:
+            configMapKeyRef:
+              name: g-match-matcher-config
+              key: DB_USER
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: g-match-secret
+              key: DB_PASSWORD
+        - name: EDGE_POLLING_INTERVAL
+          valueFrom:
+            configMapKeyRef:
+              name: g-match-matcher-config
+              key: EDGE_POLLING_INTERVAL
+        resources:
+          {{- toYaml .Values.matcher.edgeCalculator.resources | nindent 10 }}

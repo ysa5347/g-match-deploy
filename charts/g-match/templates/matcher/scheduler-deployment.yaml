@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: g-match-scheduler
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "g-match.labels" . | nindent 4 }}
+    app: g-match
+    component: scheduler
+spec:
+  replicas: {{ .Values.matcher.scheduler.replicas }}
+  selector:
+    matchLabels:
+      app: g-match
+      component: scheduler
+  template:
+    metadata:
+      labels:
+        app: g-match
+        component: scheduler
+    spec:
+      {{- include "g-match.nodeAffinity" . | nindent 6 }}
+      {{- include "g-match.imagePullSecrets" . | nindent 6 }}
+      containers:
+      - name: scheduler
+        image: {{ include "g-match.matcher.image" . }}
+        imagePullPolicy: {{ .Values.image.matcher.pullPolicy }}
+        env:
+        - name: SCRIPT_NAME
+          value: "match_scheduler.py"
+        - name: REDIS_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: g-match-matcher-config
+              key: REDIS_HOST
+        - name: REDIS_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: g-match-matcher-config
+              key: REDIS_PORT
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: g-match-secret
+              key: REDIS_PASSWORD
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: g-match-matcher-config
+              key: DB_HOST
+        - name: DB_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: g-match-matcher-config
+              key: DB_PORT
+        - name: DB_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: g-match-matcher-config
+              key: DB_NAME
+        - name: DB_USER
+          valueFrom:
+            configMapKeyRef:
+              name: g-match-matcher-config
+              key: DB_USER
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: g-match-secret
+              key: DB_PASSWORD
+        - name: SCHEDULER_INTERVAL
+          valueFrom:
+            configMapKeyRef:
+              name: g-match-matcher-config
+              key: SCHEDULER_INTERVAL
+        - name: MATCH_THRESHOLD
+          valueFrom:
+            configMapKeyRef:
+              name: g-match-matcher-config
+              key: MATCH_THRESHOLD
+        resources:
+          {{- toYaml .Values.matcher.scheduler.resources | nindent 10 }}

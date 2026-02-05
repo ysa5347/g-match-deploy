@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: g-match-matcher-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "g-match.labels" . | nindent 4 }}
+data:
+  REDIS_HOST: {{ include "g-match.redis.host" . | quote }}
+  REDIS_PORT: {{ .Values.config.redis.port | quote }}
+  REDIS_DB: {{ .Values.config.redis.db | quote }}
+  DB_HOST: {{ include "g-match.mysql.host" . | quote }}
+  DB_PORT: {{ .Values.config.db.port | quote }}
+  DB_NAME: {{ .Values.config.db.name | quote }}
+  DB_USER: {{ .Values.config.db.user | quote }}
+  EDGE_POLLING_INTERVAL: {{ .Values.config.matcher.edgePollingInterval | quote }}
+  SCHEDULER_INTERVAL: {{ .Values.config.matcher.schedulerInterval | quote }}
+  MATCH_THRESHOLD: {{ .Values.config.matcher.matchThreshold | quote }}
+  LOCK_EXPIRE: {{ .Values.config.matcher.lockExpire | quote }}

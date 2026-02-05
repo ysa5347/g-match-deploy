@@ -18,14 +18,14 @@ spec:
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: g-match-mysql
+  name: mysql
   namespace: g-match
   labels:
     app: mysql
     component: database
 spec:
   replicas: 1
-  serviceName: g-match-mysql
+  serviceName: mysql
   updateStrategy:
     type: RollingUpdate
   selector:
@@ -64,12 +64,12 @@ spec:
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: g-match-secret
+              name: g-match-mysql-secret
               key: DB_PASSWORD
         - name: MYSQL_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: g-match-secret
+              name: g-match-mysql-secret
               key: DB_ROOT_PASSWORD
         volumeMounts:
         - name: mysql-storage
@@ -115,7 +115,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: g-match-mysql
+  name: mysql
   namespace: g-match
   labels:
     app: mysql
