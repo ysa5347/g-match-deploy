@@ -133,7 +133,7 @@ redis:
       memory: "256Mi"
       cpu: "200m"
 
-# -- Migration Job (Helm hook)
+# -- Migration Job (Helm pre-install/pre-upgrade hook)
 migration:
   enabled: true
   backoffLimit: 5

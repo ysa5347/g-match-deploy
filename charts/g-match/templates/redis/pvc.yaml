@@ -7,6 +7,10 @@ metadata:
   labels:
     {{- include "g-match.labels" . | nindent 4 }}
     component: cache
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": never
 spec:
   accessModes:
     - ReadWriteOnce
