@@ -13,11 +13,11 @@ image:
   django:
     repository: g-match-backend
     tag: latest
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
   matcher:
     repository: g-match-backend-matcher
     tag: latest
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
   pullSecrets:
     - name: ghcr-secret
 
