@@ -65,23 +65,21 @@ spec:
             - ping
             - -h
             - localhost
-          initialDelaySeconds: 30
+          initialDelaySeconds: 120
           periodSeconds: 10
           timeoutSeconds: 5
+          failureThreshold: 3
         readinessProbe:
           exec:
             command:
-            - mysql
+            - mysqladmin
+            - ping
             - -h
             - localhost
-            - -u
-            - root
-            - -p$(MYSQL_ROOT_PASSWORD)
-            - -e
-            - SELECT 1
-          initialDelaySeconds: 10
-          periodSeconds: 5
-          timeoutSeconds: 3
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
         resources:
           {{- toYaml .Values.mysql.resources | nindent 10 }}
       volumes:
