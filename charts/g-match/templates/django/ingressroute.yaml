@@ -19,4 +19,21 @@ spec:
     services:
     - name: g-match-web
       port: {{ .Values.django.port }}
+      passHostHeader: true
+    middlewares:
+    - name: g-match-headers
+      namespace: {{ .Release.Namespace }}
+---
+# Middleware for forwarded headers
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: g-match-headers
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "g-match.labels" . | nindent 4 }}
+spec:
+  headers:
+    customRequestHeaders:
+      X-Forwarded-Proto: "https"
 {{- end }}

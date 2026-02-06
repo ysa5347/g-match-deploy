@@ -162,12 +162,12 @@ config:
     port: "6379"
     db: "0"
   frontend:
-    url: "http://www.g-match.org"
-    authCallbackUrl: "http://www.g-match.org/auth/callback"
+    url: "https://www.g-match.org"
+    authCallbackUrl: "https://www.g-match.org/auth/callback"
   gistOidc:
-    clientId: "26dbdb53-b19e-4241-9187-f4c24e6173e2"
-    redirectUri: "http://api.g-match.org/api/v1alpha1/account/auth/oidc/callback"
-    postLogoutRedirectUri: "http://api.g-match.org/api/v1alpha1/account/auth/oidc/callback"
+    clientId: "6e4cc684-dc66-4345-8389-c8856fdf6461"
+    redirectUri: "https://api.g-match.org/api/v1alpha1/account/auth/oidc/callback"
+    postLogoutRedirectUri: "https://api.g-match.org/api/v1alpha1/account/auth/oidc/callback"
   matcher:
     edgePollingInterval: "10"
     schedulerInterval: "120"
