@@ -137,6 +137,9 @@ spec:
           httpGet:
             path: {{ .Values.django.livenessProbe.path }}
             port: {{ .Values.django.port }}
+            httpHeaders:
+            - name: Host
+              value: localhost
           initialDelaySeconds: {{ .Values.django.livenessProbe.initialDelaySeconds }}
           periodSeconds: {{ .Values.django.livenessProbe.periodSeconds }}
           timeoutSeconds: {{ .Values.django.livenessProbe.timeoutSeconds }}
@@ -145,6 +148,9 @@ spec:
           httpGet:
             path: {{ .Values.django.readinessProbe.path }}
             port: {{ .Values.django.port }}
+            httpHeaders:
+            - name: Host
+              value: localhost
           initialDelaySeconds: {{ .Values.django.readinessProbe.initialDelaySeconds }}
           periodSeconds: {{ .Values.django.readinessProbe.periodSeconds }}
           timeoutSeconds: {{ .Values.django.readinessProbe.timeoutSeconds }}
