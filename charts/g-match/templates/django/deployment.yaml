@@ -102,7 +102,7 @@ spec:
             name: g-match-secret
         volumeMounts:
         - name: static-files
-          mountPath: /app/staticfiles
+          mountPath: {{ .Values.config.staticRoot }}
         - name: shared-migrations
           mountPath: /app/account/migrations
           subPath: account
