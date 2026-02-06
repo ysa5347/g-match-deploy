@@ -13,6 +13,7 @@ data:
   DEBUG: {{ .Values.config.debug | quote }}
   ALLOWED_HOSTS: {{ .Values.config.allowedHosts | quote }}
   STATIC_ROOT: {{ .Values.config.staticRoot | quote }}
+  CSRF_ENABLED: {{ .Values.config.csrfEnabled | quote }}
 
   DB_NAME: {{ .Values.config.db.name | quote }}
   DB_USER: {{ .Values.config.db.user | quote }}
