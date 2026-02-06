@@ -54,14 +54,59 @@ spec:
           echo "DB_PORT=$DB_PORT"
           echo "DB_NAME=$DB_NAME"
           echo "DB_USER=$DB_USER"
-          echo "Attempting migration..."
+
+          # migrations PV 디렉토리 구조 확인/생성
+          echo "Setting up migrations directories..."
+          mkdir -p /migrations/account
+          mkdir -p /migrations/match
+
+          # 기존 migrations 파일이 PV에 있으면 앱 디렉토리로 복사
+          if [ -f /migrations/account/__init__.py ]; then
+            echo "Restoring account migrations from PV..."
+            cp -r /migrations/account/* /app/account/migrations/ 2>/dev/null || true
+          else
+            echo "Initializing account migrations in PV..."
+            touch /migrations/account/__init__.py
+          fi
+
+          if [ -f /migrations/match/__init__.py ]; then
+            echo "Restoring match migrations from PV..."
+            cp -r /migrations/match/* /app/match/migrations/ 2>/dev/null || true
+          else
+            echo "Initializing match migrations in PV..."
+            touch /migrations/match/__init__.py
+          fi
+
+          # makemigrations 실행
+          echo "Running makemigrations..."
+          python manage.py makemigrations account match --noinput
+
+          # 새로 생성된 migrations를 PV에 저장
+          echo "Saving migrations to PV..."
+          cp -r /app/account/migrations/* /migrations/account/
+          cp -r /app/match/migrations/* /migrations/match/
+
+          # migrate 실행
+          echo "Running migrate..."
           python manage.py migrate --noinput
+
           echo "=== Migration Complete ==="
+          echo "Migrations stored in PV:"
+          ls -la /migrations/account/
+          ls -la /migrations/match/
         envFrom:
         - configMapRef:
             name: g-match-config
         - secretRef:
             name: g-match-secret
+        volumeMounts:
+        - name: migrations-storage
+          mountPath: /migrations
         resources:
           {{- toYaml .Values.migration.resources | nindent 10 }}
+
+      volumes:
+      - name: migrations-storage
+        persistentVolumeClaim:
+          claimName: migrations-pvc
 {{- end }}

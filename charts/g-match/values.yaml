@@ -140,6 +140,9 @@ migration:
   backoffLimit: 5
   activeDeadlineSeconds: 600
   ttlSecondsAfterFinished: 3600
+  storage:
+    size: 100Mi
+    storageClassName: local-path
   resources:
     requests:
       memory: "128Mi"

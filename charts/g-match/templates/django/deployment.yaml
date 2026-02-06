@@ -53,6 +53,40 @@ spec:
         resources:
           {{- toYaml .Values.initContainers.busybox.resources | nindent 10 }}
 
+      # Copy migrations from PV to shared emptyDir
+      - name: copy-migrations
+        image: {{ .Values.initContainers.busybox.image }}:{{ .Values.initContainers.busybox.tag }}
+        command:
+        - sh
+        - -c
+        - |
+          echo "Copying migrations from PV to shared volume..."
+          mkdir -p /shared-migrations/account
+          mkdir -p /shared-migrations/match
+          if [ -d /migrations-pv/account ] && [ "$(ls -A /migrations-pv/account 2>/dev/null)" ]; then
+            cp -r /migrations-pv/account/* /shared-migrations/account/
+            echo "account migrations copied: $(ls /shared-migrations/account/)"
+          else
+            echo "No account migrations in PV, creating __init__.py"
+            touch /shared-migrations/account/__init__.py
+          fi
+          if [ -d /migrations-pv/match ] && [ "$(ls -A /migrations-pv/match 2>/dev/null)" ]; then
+            cp -r /migrations-pv/match/* /shared-migrations/match/
+            echo "match migrations copied: $(ls /shared-migrations/match/)"
+          else
+            echo "No match migrations in PV, creating __init__.py"
+            touch /shared-migrations/match/__init__.py
+          fi
+          echo "Migrations sync complete"
+        volumeMounts:
+        - name: migrations-storage
+          mountPath: /migrations-pv
+          readOnly: true
+        - name: shared-migrations
+          mountPath: /shared-migrations
+        resources:
+          {{- toYaml .Values.initContainers.busybox.resources | nindent 10 }}
+
       # Collect static files
       - name: django-collectstatic
         image: {{ include "g-match.django.image" . }}
@@ -70,6 +104,12 @@ spec:
         volumeMounts:
         - name: static-files
           mountPath: /app/staticfiles
+        - name: shared-migrations
+          mountPath: /app/account/migrations
+          subPath: account
+        - name: shared-migrations
+          mountPath: /app/match/migrations
+          subPath: match
         resources:
           {{- toYaml .Values.django.collectstatic.resources | nindent 10 }}
 
@@ -88,6 +128,12 @@ spec:
         volumeMounts:
         - name: static-files
           mountPath: /app/staticfiles
+        - name: shared-migrations
+          mountPath: /app/account/migrations
+          subPath: account
+        - name: shared-migrations
+          mountPath: /app/match/migrations
+          subPath: match
         livenessProbe:
           httpGet:
             path: {{ .Values.django.livenessProbe.path }}
@@ -109,4 +155,9 @@ spec:
 
       volumes:
       - name: static-files
+        emptyDir: {}
+      - name: migrations-storage
+        persistentVolumeClaim:
+          claimName: migrations-pvc
+      - name: shared-migrations
         emptyDir: {}

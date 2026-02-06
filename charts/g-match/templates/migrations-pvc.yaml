@@ -1,0 +1,21 @@
+{{- if .Values.migration.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: migrations-pvc
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "g-match.labels" . | nindent 4 }}
+    component: migration
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-weight": "-10"
+    "helm.sh/hook-delete-policy": never
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ .Values.migration.storage.storageClassName }}
+  resources:
+    requests:
+      storage: {{ .Values.migration.storage.size }}
+{{- end }}
