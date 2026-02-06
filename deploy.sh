@@ -70,6 +70,7 @@ do_install() {
     helm install "$RELEASE_NAME" "$CHART_DIR" \
         --namespace "$NAMESPACE" \
         --create-namespace \
+        -f "${CHART_DIR}/values.yaml" \
         -f "$SECRETS_FILE" \
         --wait \
         --timeout "$TIMEOUT"
