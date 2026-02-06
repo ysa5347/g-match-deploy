@@ -173,6 +173,7 @@ config:
     schedulerInterval: "120"
     matchThreshold: "80.0"
     lockExpire: "120"
+  staticRoot: "/app/staticfiles"
 
 # -- Secrets (provide real values via -f secrets.yaml or --set)
 secrets:
