@@ -19,7 +19,6 @@ spec:
         app: g-match
         component: web
     spec:
-      serviceName: {{ .Values.django.serviceName }}
       {{- include "g-match.nodeAffinity" . | nindent 6 }}
       {{- include "g-match.imagePullSecrets" . | nindent 6 }}
       initContainers:

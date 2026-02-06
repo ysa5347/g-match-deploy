@@ -25,7 +25,6 @@ image:
 django:
   replicas: 1
   port: 8000
-  serviceName: g-match-web
   resources:
     requests:
       memory: "192Mi"
