@@ -209,7 +209,7 @@ smtp:
   host: "smtp-relay.brevo.com"
   port: "587"
   useTls: "true"
-  defaultFromEmail: "noreply@g-match.org"
+  defaultFromEmail: "no-reply@g-match.org"
   fromName: "G-Match"
 
 # -- Init container images
