@@ -175,6 +175,11 @@ config:
     lockExpire: "120"
   staticRoot: "/app/staticfiles"
   csrfEnabled: "False"
+  # AWS SES Email settings
+  aws:
+    sesRegion: "ap-northeast-2"
+    defaultFromEmail: "noreply@g-match.org"
+    emailEnabled: "true"
 
 # -- Secrets (provide real values via -f secrets.yaml or --set)
 secrets:
@@ -183,6 +188,9 @@ secrets:
   dbRootPassword: ""
   redisPassword: ""
   gistOidcClientSecret: ""
+  # AWS credentials for SES
+  awsAccessKeyId: ""
+  awsSecretAccessKey: ""
   # Base64-encoded .dockerconfigjson for GHCR access
   dockerconfigjson: ""
 

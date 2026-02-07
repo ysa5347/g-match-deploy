@@ -78,5 +78,36 @@ spec:
             configMapKeyRef:
               name: g-match-matcher-config
               key: MATCH_THRESHOLD
+        # AWS SES Email settings
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: g-match-secret
+              key: AWS_ACCESS_KEY_ID
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: g-match-secret
+              key: AWS_SECRET_ACCESS_KEY
+        - name: AWS_SES_REGION
+          valueFrom:
+            configMapKeyRef:
+              name: g-match-matcher-config
+              key: AWS_SES_REGION
+        - name: DEFAULT_FROM_EMAIL
+          valueFrom:
+            configMapKeyRef:
+              name: g-match-matcher-config
+              key: DEFAULT_FROM_EMAIL
+        - name: FRONTEND_URL
+          valueFrom:
+            configMapKeyRef:
+              name: g-match-matcher-config
+              key: FRONTEND_URL
+        - name: EMAIL_ENABLED
+          valueFrom:
+            configMapKeyRef:
+              name: g-match-matcher-config
+              key: EMAIL_ENABLED
         resources:
           {{- toYaml .Values.matcher.scheduler.resources | nindent 10 }}

@@ -29,3 +29,7 @@ data:
   GIST_OIDC_CLIENT_ID: {{ .Values.config.gistOidc.clientId | quote }}
   GIST_OIDC_REDIRECT_URI: {{ .Values.config.gistOidc.redirectUri | quote }}
   GIST_OIDC_POST_LOGOUT_REDIRECT_URI: {{ .Values.config.gistOidc.postLogoutRedirectUri | quote }}
+
+  # AWS SES Email settings
+  AWS_SES_REGION_NAME: {{ .Values.config.aws.sesRegion | quote }}
+  DEFAULT_FROM_EMAIL: {{ .Values.config.aws.defaultFromEmail | quote }}
