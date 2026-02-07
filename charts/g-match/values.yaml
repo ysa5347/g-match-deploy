@@ -168,6 +168,8 @@ config:
     clientId: "6e4cc684-dc66-4345-8389-c8856fdf6461"
     redirectUri: "https://api.g-match.org/api/v1alpha1/account/auth/oidc/callback"
     postLogoutRedirectUri: "https://api.g-match.org/api/v1alpha1/account/auth/oidc/callback"
+    # PKCE 비활성화: 모바일 redirect loop 테스트
+    usePkce: "False"
   matcher:
     edgePollingInterval: "10"
     schedulerInterval: "120"
