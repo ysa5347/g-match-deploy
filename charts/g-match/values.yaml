@@ -175,6 +175,10 @@ config:
     lockExpire: "120"
   staticRoot: "/app/staticfiles"
   csrfEnabled: "False"
+  # Terms & Privacy Policy URLs (S3 hosted markdown files)
+  terms:
+    termsOfServiceUrl: "https://www.g-match.org/terms/terms-of-service_260207.md"
+    privacyPolicyUrl: "https://www.g-match.org/terms/privacy-policy_260207.md"
 
 # -- Secrets (provide real values via -f secrets.yaml or --set)
 secrets:

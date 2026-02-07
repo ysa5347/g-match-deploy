@@ -35,3 +35,7 @@ data:
   SMTP_PORT: {{ .Values.smtp.port | quote }}
   SMTP_USE_TLS: {{ .Values.smtp.useTls | quote }}
   DEFAULT_FROM_EMAIL: {{ .Values.smtp.defaultFromEmail | quote }}
+
+  # Terms & Privacy Policy URLs (S3 hosted markdown files)
+  TERMS_OF_SERVICE_URL: {{ .Values.config.terms.termsOfServiceUrl | quote }}
+  PRIVACY_POLICY_URL: {{ .Values.config.terms.privacyPolicyUrl | quote }}
