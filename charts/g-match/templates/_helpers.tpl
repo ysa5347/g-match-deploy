@@ -62,3 +62,14 @@ imagePullSecrets:
 {{- end }}
 {{- end }}
 {{- end -}}
+
+{{/*
+SMTP host (OpenSMTPD service or external SMTP)
+*/}}
+{{- define "g-match.smtp.host" -}}
+{{- if .Values.opensmtpd.enabled -}}
+{{- printf "%s-opensmtpd.%s.svc.cluster.local" .Release.Name .Release.Namespace -}}
+{{- else -}}
+{{- .Values.smtp.host -}}
+{{- end -}}
+{{- end -}}

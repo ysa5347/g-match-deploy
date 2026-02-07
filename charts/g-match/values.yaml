@@ -175,11 +175,6 @@ config:
     lockExpire: "120"
   staticRoot: "/app/staticfiles"
   csrfEnabled: "False"
-  # AWS SES Email settings
-  aws:
-    sesRegion: "ap-northeast-2"
-    defaultFromEmail: "noreply@g-match.org"
-    emailEnabled: "true"
 
 # -- Secrets (provide real values via -f secrets.yaml or --set)
 secrets:
@@ -188,11 +183,30 @@ secrets:
   dbRootPassword: ""
   redisPassword: ""
   gistOidcClientSecret: ""
-  # AWS credentials for SES
-  awsAccessKeyId: ""
-  awsSecretAccessKey: ""
+  # SMTP credentials (if using external SMTP with auth)
+  smtpUsername: ""
+  smtpPassword: ""
   # Base64-encoded .dockerconfigjson for GHCR access
   dockerconfigjson: ""
+
+# -- OpenSMTPD Mail Server (disabled - using external SMTP relay)
+opensmtpd:
+  enabled: false
+  domain: "g-match.org"
+  image:
+    repository: instrumentisto/opensmtpd
+    tag: "7.5"
+  tlsSecretName: ""
+
+# -- SMTP settings (Brevo SMTP relay)
+# Brevo SMTP: https://www.brevo.com
+# Get SMTP credentials from: Settings → SMTP & API
+smtp:
+  host: "smtp-relay.brevo.com"
+  port: "587"
+  useTls: "true"
+  defaultFromEmail: "noreply@g-match.org"
+  fromName: "G-Match"
 
 # -- Init container images
 initContainers:

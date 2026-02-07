@@ -30,6 +30,8 @@ data:
   GIST_OIDC_REDIRECT_URI: {{ .Values.config.gistOidc.redirectUri | quote }}
   GIST_OIDC_POST_LOGOUT_REDIRECT_URI: {{ .Values.config.gistOidc.postLogoutRedirectUri | quote }}
 
-  # AWS SES Email settings
-  AWS_SES_REGION_NAME: {{ .Values.config.aws.sesRegion | quote }}
-  DEFAULT_FROM_EMAIL: {{ .Values.config.aws.defaultFromEmail | quote }}
+  # SMTP Email settings
+  SMTP_HOST: {{ include "g-match.smtp.host" . | quote }}
+  SMTP_PORT: {{ .Values.smtp.port | quote }}
+  SMTP_USE_TLS: {{ .Values.smtp.useTls | quote }}
+  DEFAULT_FROM_EMAIL: {{ .Values.smtp.defaultFromEmail | quote }}

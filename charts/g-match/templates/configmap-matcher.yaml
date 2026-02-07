@@ -21,8 +21,10 @@ data:
   SCHEDULER_INTERVAL: {{ .Values.config.matcher.schedulerInterval | quote }}
   MATCH_THRESHOLD: {{ .Values.config.matcher.matchThreshold | quote }}
   LOCK_EXPIRE: {{ .Values.config.matcher.lockExpire | quote }}
-  # AWS SES Email settings
-  AWS_SES_REGION: {{ .Values.config.aws.sesRegion | quote }}
-  DEFAULT_FROM_EMAIL: {{ .Values.config.aws.defaultFromEmail | quote }}
+  # SMTP Email settings
+  SMTP_HOST: {{ include "g-match.smtp.host" . | quote }}
+  SMTP_PORT: {{ .Values.smtp.port | quote }}
+  SMTP_USE_TLS: {{ .Values.smtp.useTls | quote }}
+  DEFAULT_FROM_EMAIL: {{ .Values.smtp.defaultFromEmail | quote }}
   FRONTEND_URL: {{ .Values.config.frontend.url | quote }}
-  EMAIL_ENABLED: {{ .Values.config.aws.emailEnabled | quote }}
+  EMAIL_ENABLED: "true"

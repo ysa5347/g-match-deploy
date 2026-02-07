@@ -78,22 +78,32 @@ spec:
             configMapKeyRef:
               name: g-match-matcher-config
               key: MATCH_THRESHOLD
-        # AWS SES Email settings
-        - name: AWS_ACCESS_KEY_ID
-          valueFrom:
-            secretKeyRef:
-              name: g-match-secret
-              key: AWS_ACCESS_KEY_ID
-        - name: AWS_SECRET_ACCESS_KEY
-          valueFrom:
-            secretKeyRef:
-              name: g-match-secret
-              key: AWS_SECRET_ACCESS_KEY
-        - name: AWS_SES_REGION
+        # SMTP Email settings
+        - name: SMTP_HOST
           valueFrom:
             configMapKeyRef:
               name: g-match-matcher-config
-              key: AWS_SES_REGION
+              key: SMTP_HOST
+        - name: SMTP_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: g-match-matcher-config
+              key: SMTP_PORT
+        - name: SMTP_USE_TLS
+          valueFrom:
+            configMapKeyRef:
+              name: g-match-matcher-config
+              key: SMTP_USE_TLS
+        - name: SMTP_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: g-match-secret
+              key: SMTP_USERNAME
+        - name: SMTP_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: g-match-secret
+              key: SMTP_PASSWORD
         - name: DEFAULT_FROM_EMAIL
           valueFrom:
             configMapKeyRef:
